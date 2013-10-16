@@ -3,7 +3,7 @@
 
 namespace
 {
-HMODULE selfModule = 0;
+HMODULE gvimModule = 0;     // Gvimñ{ëÃ
 HMODULE selfHandle = 0;     // èÌíìóp
 
 void Initialize()
@@ -11,7 +11,7 @@ void Initialize()
     if (selfHandle == 0)
     {
         char selfPath[MAX_PATH];
-        GetModuleFileNameA(selfModule, selfPath, sizeof(selfPath));
+        GetModuleFileNameA(gvimModule, selfPath, sizeof(selfPath));
 
         selfHandle = LoadLibraryA(selfPath);
     }
@@ -56,7 +56,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     case DLL_PROCESS_ATTACH:
         MessageBoxA(0, "DLL_PROCESS_ATTACH", "IconDrag", MB_OK);
 
-        selfModule = hModule;
+        gvimModule = hModule;
         break;
 
     case DLL_THREAD_ATTACH:
