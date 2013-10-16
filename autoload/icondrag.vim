@@ -23,18 +23,22 @@
 " }}}
 "=============================================================================
 
+if has('win64')
+    let s:icondrag_dll = expand('<sfile>:p:h') . '\icondrag64.dll'
+else
+    let s:icondrag_dll = expand('<sfile>:p:h') . '\icondrag32.dll'
+endif
+
 if !exists('s:icondrag_state')
     let s:icondrag_state = 0
 endif
 
 function! icondrag#enable()
+    call libcallnr(s:icondrag_dll, 'IconDrag_Enable', v:windowid)
     let s:icondrag_state = 1
-
-    echo "icondrag#enable()"
 endfunction
 
 function! icondrag#disable()
+    call libcallnr(s:icondrag_dll, 'IconDrag_Disable', v:windowid)
     let s:icondrag_state = 0
-
-    echo "icondrag#disable()"
 endfunction
