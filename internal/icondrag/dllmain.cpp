@@ -69,6 +69,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
     case DLL_PROCESS_DETACH:
         MessageBoxA(0, "DLL_PROCESS_DETACH", "IconDrag", MB_OK);
+        Finalize();
         break;
     }
     return TRUE;
