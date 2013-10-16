@@ -29,6 +29,8 @@ if (exists('g:loaded_icondrag') && g:loaded_icondrag) || !has('win32') || !has('
 endif
 let g:loaded_icondrag = 1
 
+let g:icondrag_auto_start = get(g:, 'icondrag_auto_start', 0)
+
 command! -nargs=0 -bar IconDragEnable  call icondrag#enable()
 command! -nargs=0 -bar IconDragDisable call icondrag#disable()
 
@@ -38,4 +40,3 @@ augroup icondrag_plugin
         autocmd GuiEnter * call icondrag#enable()
     endif
 augroup END
-

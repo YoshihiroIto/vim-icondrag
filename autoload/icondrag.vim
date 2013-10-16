@@ -38,4 +38,3 @@ function! icondrag#disable()
 
     echo "icondrag#disable()"
 endfunction
-
