@@ -1,19 +1,64 @@
-// dllmain.cpp : DLL アプリケーションのエントリ ポイントを定義します。
 #include "stdafx.h"
+#include "Core.h"
 
 namespace
 {
-HMODULE gvimModule = 0;     // Gvim本体
-HMODULE selfHandle = 0;     // 常駐用
 
-void Initialize()
+HMODULE gvimModule  = 0;     // Gvim本体
+HMODULE selfHandle  = 0;     // 常駐用
+HHOOK   hook        = 0;
+Core    core;
+
+LRESULT HookProc( int nCode, WPARAM wParam, LPARAM lParam)
+{
+    if (nCode >= 0)
+	{
+	    if (nCode == HC_ACTION)
+		{
+		    const CWPSTRUCT *pcwp = (CWPSTRUCT *)lParam;
+
+ char str[256];
+
+            if (pcwp->message == WM_CLOSE) {
+                MessageBeep(MB_OK);
+                sprintf(str,
+                    "Window %X が閉じられようとしています",
+                    pcwp->hwnd);
+                MessageBoxA(pcwp->hwnd, str, "OK", MB_OK);
+            }
+
+
+			switch(pcwp->message)
+			{
+				case Core::WM_GETDATA:{	if (core.OnGETDATA(		    pcwp->wParam, pcwp->lParam))    return 1;	}   break;
+				case WM_NCLBUTTONDOWN:{	if (core.OnNCLBUTTONDOWN(	pcwp->wParam, pcwp->lParam))    return 1;	}   break;
+				case WM_NCRBUTTONDOWN:{	if (core.OnNCRBUTTONDOWN(	pcwp->wParam, pcwp->lParam))    return 1;	}   break;
+				case WM_MOUSEMOVE:{		if (core.OnMOUSEMOVE(		pcwp->wParam, pcwp->lParam))    return 1;	}   break;
+				case WM_LBUTTONUP:{		if (core.OnLBUTTONUP(		pcwp->wParam, pcwp->lParam))    return 1;	}   break;
+				case WM_RBUTTONUP:{		if (core.OnRBUTTONUP(		pcwp->wParam, pcwp->lParam))    return 1;	}   break;
+				case WM_TIMER:{			if (core.OnTIMER(			pcwp->wParam, pcwp->lParam))    return 1;	}   break;
+		    }
+		}
+	}
+
+    return CallNextHookEx(hook, nCode, wParam, lParam);
+}
+
+void Initialize(const char *args)
 {
     if (selfHandle == 0)
     {
         char selfPath[MAX_PATH];
         GetModuleFileNameA(gvimModule, selfPath, sizeof(selfPath));
 
+	    #define GWL_HINSTANCE       (-6)
+	    HINSTANCE hinst = (HINSTANCE)GetWindowLong((HWND)args, GWL_HINSTANCE);
+        hook = SetWindowsHookEx(WH_CALLWNDPROC, (HOOKPROC)HookProc, hinst, GetCurrentThreadId());
+
+        // 常駐
         selfHandle = LoadLibraryA(selfPath);
+
+		core.Initialize((HWND)args);
     }
 }
 
@@ -21,6 +66,12 @@ void Finalize()
 {
     if (selfHandle != 0)
     {
+		core.Finalize();
+
+        UnhookWindowsHookEx(hook);
+        hook = 0;
+
+        // 常駐解除
         FreeLibrary(selfHandle);
         selfHandle = 0;
     }
@@ -33,7 +84,7 @@ void Finalize()
 EXPORT void *IconDrag_Enable(const char *args)
 {
     MessageBoxA((HWND)args, "IconDrag_Enable", "IconDrag", MB_OK);
-    Initialize();
+    Initialize(args);
 
     return NULL;
 }
@@ -41,6 +92,7 @@ EXPORT void *IconDrag_Enable(const char *args)
 EXPORT void * IconDrag_Disable(const char *args)
 {
     MessageBoxA((HWND)args, "IconDrag_Disable", "IconDrag", MB_OK);
+
     Finalize();
 
     return NULL;
