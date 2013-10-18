@@ -7,8 +7,7 @@ extern "C"{
 
 enum
 {
-    WM_GETDATA			= 1977,
-    WM_TIMER_SYSMENU,
+    WM_TIMER_SYSMENU = 100,
 };
 
 // --------------------------------------------------------------------------
@@ -20,10 +19,7 @@ void Core::Initialize(HWND hwnd)
     isLeftClick			    = false;
     drawStartXpos			= 0;
     drawStartYpos			= 0;
-    this->hwnd = hwnd;
-
-	// test
-	filename = L"C:\\Users\\yh-ito\\Downloads\\test.txt";
+    this->hwnd				= hwnd;
 }
 // --------------------------------------------------------------------------
 void Core::Finalize()
@@ -31,13 +27,18 @@ void Core::Finalize()
     KillSysMenuTimer();
 }
 // --------------------------------------------------------------------------
+void Core::SetFilepath(const char *filepath)
+{
+	this->filepath = filepath;
+}
+// --------------------------------------------------------------------------
 bool Core::OnGETDATA(WPARAM wParam, LPARAM lParam)
 {
-    switch(wParam)
+	switch(wParam)
 	{
         case CF_HDROP:
 	    {
-            const DWORD	buffer_size	= sizeof(DROPFILES) + (MAX_PATH * 2) + 1 + 1;
+			const DWORD	buffer_size	= sizeof(DROPFILES) + MAX_PATH + 1 + 1;
             //
             HDROP	drop_handle	= (HDROP)GlobalAlloc(GHND | GMEM_SHARE, buffer_size);
             {
@@ -48,8 +49,8 @@ bool Core::OnGETDATA(WPARAM wParam, LPARAM lParam)
                 dropfiles->pt.x		= 0;
                 dropfiles->pt.y		= 0;
                 dropfiles->fNC		= false;
-                dropfiles->fWide	= TRUE;				    // ワイドキャラの場合は TRUE
-                CopyMemory(dropfiles + 1, filename.c_str(), filename.size() * 2);
+                dropfiles->fWide	= FALSE;
+                CopyMemory(dropfiles + 1, filepath.c_str(), filepath.size());
             }
 
             //
@@ -66,10 +67,9 @@ bool Core::OnGETDATA(WPARAM wParam, LPARAM lParam)
 // --------------------------------------------------------------------------
 bool Core::OnNCBUTTONDOWN_Core(WPARAM wParam, LPARAM lParam)
 {
-    int	iFileNameLength	= (int)filename.size();
-
     if(	(wParam == HTSYSMENU) &&
-        (iFileNameLength > 0)){
+		(filepath.empty() == false))
+	{
         dragging		= true;
         timerState		= 0;
         drawStartXpos	= (int)LOWORD(lParam);
@@ -91,8 +91,6 @@ bool Core::OnNCBUTTONDOWN_Core(WPARAM wParam, LPARAM lParam)
 // --------------------------------------------------------------------------
 bool Core::OnNCLBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 {
-	MessageBoxA(hwnd, "OnNCLBUTTONDOWN", "IconDrag", MB_OK);
-
     isLeftClick	= true;				// 左クリック
 
     return OnNCBUTTONDOWN_Core(wParam, lParam);
@@ -100,8 +98,6 @@ bool Core::OnNCLBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 // --------------------------------------------------------------------------
 bool Core::OnNCRBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 {
-	MessageBoxA(hwnd, "OnNCRBUTTONDOWN", "IconDrag", MB_OK);
-
     isLeftClick	= false;			// 右クリック
 
     return OnNCBUTTONDOWN_Core(wParam, lParam);
@@ -109,8 +105,6 @@ bool Core::OnNCRBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 // --------------------------------------------------------------------------
 bool Core::OnMOUSEMOVE(WPARAM wParam, LPARAM lParam)
 {
-	MessageBoxA(hwnd, "OnMOUSEMOVE", "IconDrag", MB_OK);
-
     if(dragging && (IsInDoubleClickRect() == false))
 	{
         KillSysMenuTimer();
@@ -141,12 +135,11 @@ bool Core::IsInDoubleClickRect()
     GetCursorPos(&cursor_pos);
 
     return
-        (ABS(cursor_pos.x - drawStartXpos) < (GetSystemMetrics(SM_CXDOUBLECLK) >> 1)) &&
-        (ABS(cursor_pos.y - drawStartYpos) < (GetSystemMetrics(SM_CYDOUBLECLK) >> 1));
+        (ABS(cursor_pos.x - drawStartXpos) < (GetSystemMetrics(SM_CXDOUBLECLK) / 2)) &&
+        (ABS(cursor_pos.y - drawStartYpos) < (GetSystemMetrics(SM_CYDOUBLECLK) / 2));
 
     #undef ABS
 }
-
 // --------------------------------------------------------------------------
 bool Core::OnBUTTONUP_Core(WPARAM wParam, LPARAM lParam){
 

@@ -3,61 +3,43 @@
 
 namespace
 {
-
 HMODULE gvimModule  = 0;     // Gvim本体
 HMODULE selfHandle  = 0;     // 常駐用
 HHOOK   hook        = 0;
+WNDPROC oldWndProc = NULL;
 Core    core;
 
-LRESULT HookProc( int nCode, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK MenuWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (nCode >= 0)
+	switch(uMsg)
 	{
-	    if (nCode == HC_ACTION)
-		{
-		    const CWPSTRUCT *pcwp = (CWPSTRUCT *)lParam;
-
- char str[256];
-
-            if (pcwp->message == WM_CLOSE) {
-                MessageBeep(MB_OK);
-                sprintf(str,
-                    "Window %X が閉じられようとしています",
-                    pcwp->hwnd);
-                MessageBoxA(pcwp->hwnd, str, "OK", MB_OK);
-            }
-
-
-			switch(pcwp->message)
-			{
-				case Core::WM_GETDATA:{	if (core.OnGETDATA(		    pcwp->wParam, pcwp->lParam))    return 1;	}   break;
-				case WM_NCLBUTTONDOWN:{	if (core.OnNCLBUTTONDOWN(	pcwp->wParam, pcwp->lParam))    return 1;	}   break;
-				case WM_NCRBUTTONDOWN:{	if (core.OnNCRBUTTONDOWN(	pcwp->wParam, pcwp->lParam))    return 1;	}   break;
-				case WM_MOUSEMOVE:{		if (core.OnMOUSEMOVE(		pcwp->wParam, pcwp->lParam))    return 1;	}   break;
-				case WM_LBUTTONUP:{		if (core.OnLBUTTONUP(		pcwp->wParam, pcwp->lParam))    return 1;	}   break;
-				case WM_RBUTTONUP:{		if (core.OnRBUTTONUP(		pcwp->wParam, pcwp->lParam))    return 1;	}   break;
-				case WM_TIMER:{			if (core.OnTIMER(			pcwp->wParam, pcwp->lParam))    return 1;	}   break;
-		    }
-		}
+		case Core::WM_GETDATA:{	if (core.OnGETDATA(		    wParam, lParam))    return 0;	}   break;
+		case WM_NCLBUTTONDOWN:{	if (core.OnNCLBUTTONDOWN(	wParam, lParam))    return 0;	}   break;
+		case WM_NCRBUTTONDOWN:{	if (core.OnNCRBUTTONDOWN(	wParam, lParam))    return 0;	}   break;
+		case WM_MOUSEMOVE:{		if (core.OnMOUSEMOVE(		wParam, lParam))    return 0;	}   break;
+		case WM_LBUTTONUP:{		if (core.OnLBUTTONUP(		wParam, lParam))    return 0;	}   break;
+		case WM_RBUTTONUP:{		if (core.OnRBUTTONUP(		wParam, lParam))    return 0;	}   break;
+		case WM_TIMER:{			if (core.OnTIMER(			wParam, lParam))    return 0;	}   break;
 	}
 
-    return CallNextHookEx(hook, nCode, wParam, lParam);
+	return CallWindowProc(oldWndProc, hWnd, uMsg, wParam, lParam);
 }
 
 void Initialize(const char *args)
 {
     if (selfHandle == 0)
     {
-        char selfPath[MAX_PATH];
-        GetModuleFileNameA(gvimModule, selfPath, sizeof(selfPath));
+		OleInitialize(NULL);
 
-	    #define GWL_HINSTANCE       (-6)
-	    HINSTANCE hinst = (HINSTANCE)GetWindowLong((HWND)args, GWL_HINSTANCE);
-        hook = SetWindowsHookEx(WH_CALLWNDPROC, (HOOKPROC)HookProc, hinst, GetCurrentThreadId());
+		// サブクラス化
+		#define GWL_WNDPROC (-4)
+		oldWndProc = (WNDPROC)GetWindowLongPtr((HWND)args, GWL_WNDPROC);
+        SetWindowLongPtr((HWND)args, GWL_WNDPROC, (LONG_PTR)MenuWndProc);
 
         // 常駐
+		char selfPath[MAX_PATH];
+        GetModuleFileNameA(gvimModule, selfPath, sizeof(selfPath));
         selfHandle = LoadLibraryA(selfPath);
-
 		core.Initialize((HWND)args);
     }
 }
@@ -74,53 +56,51 @@ void Finalize()
         // 常駐解除
         FreeLibrary(selfHandle);
         selfHandle = 0;
-    }
+
+		OleUninitialize();
+	}
 }
 
 }
 
 #define EXPORT extern "C" __declspec(dllexport)
 
-EXPORT void *IconDrag_Enable(const char *args)
+EXPORT char *IconDrag_Enable(const char *args)
 {
-    MessageBoxA((HWND)args, "IconDrag_Enable", "IconDrag", MB_OK);
     Initialize(args);
 
     return NULL;
 }
 
-EXPORT void * IconDrag_Disable(const char *args)
+EXPORT char *IconDrag_Disable(const char *args)
 {
-    MessageBoxA((HWND)args, "IconDrag_Disable", "IconDrag", MB_OK);
-
     Finalize();
 
     return NULL;
 }
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+EXPORT char *IconDrag_SetCurrentFilepath(const char *args)
+{
+	core.SetFilepath(args == NULL ? "" : args);
+
+	return NULL;
+}
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        MessageBoxA(0, "DLL_PROCESS_ATTACH", "IconDrag", MB_OK);
-
         gvimModule = hModule;
         break;
 
     case DLL_THREAD_ATTACH:
-        //MessageBoxA(0, "DLL_THREAD_ATTACH", "IconDrag", MB_OK);
-        break;
+		break;
 
     case DLL_THREAD_DETACH:
-        //MessageBoxA(0, "DLL_THREAD_DETACH", "IconDrag", MB_OK);
         break;
 
     case DLL_PROCESS_DETACH:
-        MessageBoxA(0, "DLL_PROCESS_DETACH", "IconDrag", MB_OK);
         Finalize();
         break;
     }

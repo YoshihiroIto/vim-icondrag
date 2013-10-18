@@ -6,14 +6,12 @@
 class Core
 {
 public:
-	enum{ WM_GETDATA = (WM_APP + 101) };
+	enum{ WM_GETDATA = (WM_APP + 1977) };
 
 	void Initialize(HWND hwnd);
 	void Finalize();
 
-	void SetSysMenuTimer();
-	void KillSysMenuTimer();
-	void ShowSystemMenu();
+	void SetFilepath(const char *filepath);
 
 	bool OnGETDATA(WPARAM wParam, LPARAM lParam);
 	bool OnNCRBUTTONDOWN(WPARAM wParam, LPARAM lParam);
@@ -23,8 +21,6 @@ public:
 	bool OnRBUTTONUP(WPARAM wParam, LPARAM lParam);
 	bool OnTIMER(WPARAM wParam, LPARAM lParam);
 
-	HWND    hwnd;
-
 private:
     bool	dragging;
     int		timerState;
@@ -32,14 +28,18 @@ private:
     bool	isLeftClick;
     int		drawStartXpos;
     int		drawStartYpos;
+	HWND    hwnd;
 
-	std::wstring    filename;
+	std::string    filepath;
 
 	bool	OnNCBUTTONDOWN_Core(WPARAM wParam, LPARAM lParam);
 	bool	OnBUTTONUP_Core(WPARAM wParam, LPARAM lParam);
 
-	bool IsInDoubleClickRect();
+	void SetSysMenuTimer();
+	void KillSysMenuTimer();
+	void ShowSystemMenu();
 
+	bool IsInDoubleClickRect();
 };
 
 #endif

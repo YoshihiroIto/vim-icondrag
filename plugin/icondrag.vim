@@ -24,7 +24,6 @@
 "=============================================================================
 
 if (exists('g:loaded_icondrag') && g:loaded_icondrag) || !has('win32') || !has('gui_running')
-" if (exists('g:loaded_icondrag') && g:loaded_icondrag) || !has('gui_running')
     finish
 endif
 let g:loaded_icondrag = 1
@@ -36,7 +35,16 @@ command! -nargs=0 -bar IconDragDisable call icondrag#disable()
 
 augroup icondrag_plugin
     autocmd!
+
     if g:icondrag_auto_start
         autocmd GuiEnter * call icondrag#enable()
     endif
+
+    autocmd WinEnter       * call icondrag#set_current_filepath()
+    autocmd BufReadPost    * call icondrag#set_current_filepath()
+    autocmd FileReadPost   * call icondrag#set_current_filepath()
+    autocmd FilterReadPost * call icondrag#set_current_filepath()
+    autocmd BufFilePost    * call icondrag#set_current_filepath()
+    autocmd TabEnter       * call icondrag#set_current_filepath()
 augroup END
+
