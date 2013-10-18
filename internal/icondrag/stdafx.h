@@ -17,5 +17,6 @@
 #include <WinBase.h>
 #include <WinNT.h>
 #include <WinUser.h>
+#include <Shlwapi.h>
 
 // TODO: プログラムに必要な追加ヘッダーをここで参照してください。

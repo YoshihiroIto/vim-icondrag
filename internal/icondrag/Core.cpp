@@ -28,6 +28,8 @@ extern "C"{
 #include "OleDragDrop.h"
 }
 
+#pragma comment(lib, "shlwapi.lib")
+
 enum
 {
     WM_TIMER_SYSMENU = 100,
@@ -91,7 +93,8 @@ bool Core::OnGETDATA(WPARAM wParam, LPARAM lParam)
 bool Core::OnNCBUTTONDOWN_Core(WPARAM wParam, LPARAM lParam)
 {
     if(	(wParam == HTSYSMENU) &&
-		(filepath.empty() == false))
+		(filepath.empty() == false) &&
+		(PathFileExistsA(filepath.c_str()) == TRUE))
 	{
         dragging		= true;
         timerState		= 0;
