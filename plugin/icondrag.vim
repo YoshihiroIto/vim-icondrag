@@ -41,11 +41,14 @@ augroup icondrag_plugin
         autocmd GuiEnter * call icondrag#enable()
     endif
 
-    autocmd WinEnter       * call icondrag#set_current_filepath()
-    autocmd BufReadPost    * call icondrag#set_current_filepath()
-    autocmd FileReadPost   * call icondrag#set_current_filepath()
-    autocmd FilterReadPost * call icondrag#set_current_filepath()
-    autocmd BufFilePost    * call icondrag#set_current_filepath()
-    autocmd TabEnter       * call icondrag#set_current_filepath()
+    " autocmd WinEnter       * call icondrag#set_current_filepath()
+    " autocmd BufReadPost    * call icondrag#set_current_filepath()
+    " autocmd FileReadPost   * call icondrag#set_current_filepath()
+    " autocmd FilterReadPost * call icondrag#set_current_filepath()
+    " autocmd BufFilePost    * call icondrag#set_current_filepath()
+    " autocmd TabEnter       * call icondrag#set_current_filepath()
+
+    autocmd BufEnter        * call icondrag#set_current_filepath()
+    autocmd BufWritePost    * call icondrag#set_current_filepath()
 augroup END
 
