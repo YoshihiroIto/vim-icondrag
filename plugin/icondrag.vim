@@ -22,7 +22,6 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 "=============================================================================
-
 if (exists('g:loaded_icondrag') && g:loaded_icondrag) || !has('win32') || !has('gui_running')
     finish
 endif

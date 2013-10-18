@@ -22,7 +22,6 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 "=============================================================================
-
 if has('win64')
     let s:icondrag_dll = expand('<sfile>:p:h') . '\icondrag64.dll'
 else
@@ -56,3 +55,4 @@ function! icondrag#set_current_filepath()
         endif
     endif
 endfunction
+
