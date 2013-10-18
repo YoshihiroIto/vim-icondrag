@@ -4,7 +4,7 @@ vim-icondrag
 Window app-icon enabling drag source for Windows Gvim.
 
 
-![](https://www.dropbox.com/s/6hci043pvriyath/icondrag0.png)
+![](https://dl.dropboxusercontent.com/s/6hci043pvriyath/icondrag0.png)
 
 
 Requirements
