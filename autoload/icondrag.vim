@@ -32,7 +32,13 @@ if !exists('s:icondrag_state')
     let s:icondrag_state = 0
 endif
 
+let s:isWindows = has('win32') || has('win64')
+
 function! icondrag#enable()
+    if !s:isWindows
+        return
+    endif
+    
     call libcallnr(s:icondrag_dll, 'IconDrag_Enable', v:windowid)
     let s:icondrag_state = 1
 
@@ -40,12 +46,20 @@ function! icondrag#enable()
 endfunction
 
 function! icondrag#disable()
+    if !s:isWindows
+        return
+    endif
+
     call libcallnr(s:icondrag_dll, 'IconDrag_Disable', v:windowid)
     let s:icondrag_state = 0
 endfunction
 
 function! icondrag#set_current_filepath()
-    if  s:icondrag_state == 1
+    if !s:isWindows
+        return
+    endif
+
+    if s:icondrag_state == 1
         let filepath = expand('%:p')
 
         if filepath == ''

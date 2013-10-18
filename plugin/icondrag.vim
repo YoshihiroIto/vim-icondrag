@@ -22,7 +22,9 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 "=============================================================================
-if (exists('g:loaded_icondrag') && g:loaded_icondrag) || !has('win32') || !has('gui_running')
+let s:isWindows = has('win32') || has('win64')
+
+if (exists('g:loaded_icondrag') && g:loaded_icondrag) || !s:isWindows || !has('gui_running')
     finish
 endif
 let g:loaded_icondrag = 1

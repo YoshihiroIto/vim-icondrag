@@ -28,11 +28,11 @@ namespace
 {
 HMODULE gvimModule  = 0;     // Gvim本体
 HMODULE selfHandle  = 0;     // 常駐用
-HHOOK   hook        = 0;
-WNDPROC oldWndProc = NULL;
+HWND	gvimHwnd    = 0;
+WNDPROC oldWndProc  = 0;
 Core    core;
 
-LRESULT CALLBACK MenuWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK IconDragWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg)
 	{
@@ -50,20 +50,22 @@ LRESULT CALLBACK MenuWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void Initialize(const char *args)
 {
-    if (selfHandle == 0)
+	if (selfHandle == 0)
     {
+		gvimHwnd = (HWND)args;
+
 		OleInitialize(NULL);
 
 		// サブクラス化
 		#define GWL_WNDPROC (-4)
-		oldWndProc = (WNDPROC)GetWindowLongPtr((HWND)args, GWL_WNDPROC);
-        SetWindowLongPtr((HWND)args, GWL_WNDPROC, (LONG_PTR)MenuWndProc);
+		oldWndProc = (WNDPROC)GetWindowLongPtr(gvimHwnd, GWL_WNDPROC);
+        SetWindowLongPtr(gvimHwnd, GWL_WNDPROC, (LONG_PTR)IconDragWndProc);
 
         // 常駐
 		char selfPath[MAX_PATH];
         GetModuleFileNameA(gvimModule, selfPath, sizeof(selfPath));
         selfHandle = LoadLibraryA(selfPath);
-		core.Initialize((HWND)args);
+		core.Initialize(gvimHwnd);
     }
 }
 
@@ -73,12 +75,12 @@ void Finalize()
     {
 		core.Finalize();
 
-        UnhookWindowsHookEx(hook);
-        hook = 0;
-
         // 常駐解除
         FreeLibrary(selfHandle);
         selfHandle = 0;
+
+		// サブクラス化を戻す
+		SetWindowLongPtr(gvimHwnd, GWLP_WNDPROC, (LONG_PTR)oldWndProc);
 
 		OleUninitialize();
 	}
