@@ -36,13 +36,13 @@ LRESULT CALLBACK IconDragWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 {
     switch(uMsg)
     {
-        case Core::WM_GETDATA:{ if (core.OnGETDATA(         wParam, lParam))    return 0;   }   break;
-        case WM_NCLBUTTONDOWN:{ if (core.OnNCLBUTTONDOWN(   wParam, lParam))    return 0;   }   break;
-        case WM_NCRBUTTONDOWN:{ if (core.OnNCRBUTTONDOWN(   wParam, lParam))    return 0;   }   break;
-        case WM_MOUSEMOVE:{     if (core.OnMOUSEMOVE(       wParam, lParam))    return 0;   }   break;
-        case WM_LBUTTONUP:{     if (core.OnLBUTTONUP(       wParam, lParam))    return 0;   }   break;
-        case WM_RBUTTONUP:{     if (core.OnRBUTTONUP(       wParam, lParam))    return 0;   }   break;
-        case WM_TIMER:{         if (core.OnTIMER(           wParam, lParam))    return 0;   }   break;
+        case Core::WM_GETDATA:{ if (core.OnGETDATA(      wParam, lParam)) return 0; } break;
+        case WM_NCLBUTTONDOWN:{ if (core.OnNCLBUTTONDOWN(wParam, lParam)) return 0; } break;
+        case WM_NCRBUTTONDOWN:{ if (core.OnNCRBUTTONDOWN(wParam, lParam)) return 0; } break;
+        case WM_MOUSEMOVE:{     if (core.OnMOUSEMOVE(    wParam, lParam)) return 0; } break;
+        case WM_LBUTTONUP:{     if (core.OnLBUTTONUP(    wParam, lParam)) return 0; } break;
+        case WM_RBUTTONUP:{     if (core.OnRBUTTONUP(    wParam, lParam)) return 0; } break;
+        case WM_TIMER:{         if (core.OnTIMER(        wParam, lParam)) return 0; } break;
     }
 
     return CallWindowProc(oldWndProc, hWnd, uMsg, wParam, lParam);
@@ -131,3 +131,4 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     }
     return TRUE;
 }
+

@@ -29,7 +29,7 @@
 class Core
 {
 public:
-    enum{ WM_GETDATA = (WM_APP + 1977) };
+    enum{ WM_GETDATA = WM_APP + 1977 };
 
     void Initialize(HWND hwnd);
     void Finalize();
@@ -45,18 +45,17 @@ public:
     bool OnTIMER(WPARAM wParam, LPARAM lParam);
 
 private:
-    bool    dragging;
-    int     timerState;
-    bool    isActiveSysmenuTimer;
-    bool    isLeftClick;
-    int     drawStartXpos;
-    int     drawStartYpos;
-    HWND    hwnd;
+    bool        isDragging;
+    int         timerState;
+    bool        isActiveSysmenuTimer;
+    bool        isLeftClick;
+    int         drawStartXpos;
+    int         drawStartYpos;
+    HWND        hwnd;
+    std::string filepath;
 
-    std::string    filepath;
-
-    bool    OnNCBUTTONDOWN_Core(WPARAM wParam, LPARAM lParam);
-    bool    OnBUTTONUP_Core(WPARAM wParam, LPARAM lParam);
+    bool OnNCBUTTONDOWN_Core(WPARAM wParam, LPARAM lParam);
+    bool OnBUTTONUP_Core(WPARAM wParam, LPARAM lParam);
 
     void SetSysMenuTimer();
     void KillSysMenuTimer();

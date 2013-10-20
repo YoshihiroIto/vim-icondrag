@@ -38,13 +38,13 @@ enum
 // --------------------------------------------------------------------------
 void Core::Initialize(HWND hwnd)
 {
-    dragging                = false;
-    timerState              = 0;
-    isActiveSysmenuTimer    = false;
-    isLeftClick             = false;
-    drawStartXpos           = 0;
-    drawStartYpos           = 0;
-    this->hwnd              = hwnd;
+    isDragging           = false;
+    timerState           = 0;
+    isActiveSysmenuTimer = false;
+    isLeftClick          = false;
+    drawStartXpos        = 0;
+    drawStartYpos        = 0;
+    this->hwnd           = hwnd;
 }
 // --------------------------------------------------------------------------
 void Core::Finalize()
@@ -67,18 +67,17 @@ bool Core::OnGETDATA(WPARAM wParam, LPARAM lParam)
             //
             HDROP   drop_handle = (HDROP)GlobalAlloc(GHND | GMEM_SHARE, buffer_size);
             {
-                DROPFILES * dropfiles   = (DROPFILES *)GlobalLock(drop_handle);
+                DROPFILES *dropfiles = (DROPFILES *)GlobalLock(drop_handle);
 
                 ZeroMemory(dropfiles, buffer_size);
-                dropfiles->pFiles   = sizeof(DROPFILES);        // ファイル名のリストまでのオフセット
-                dropfiles->pt.x     = 0;
-                dropfiles->pt.y     = 0;
-                dropfiles->fNC      = false;
-                dropfiles->fWide    = FALSE;
+                dropfiles->pFiles = sizeof(DROPFILES);        // ファイル名のリストまでのオフセット
+                dropfiles->pt.x   = 0;
+                dropfiles->pt.y   = 0;
+                dropfiles->fNC    = FALSE;
+                dropfiles->fWide  = FALSE;
                 CopyMemory(dropfiles + 1, filepath.c_str(), filepath.size());
             }
 
-            //
             GlobalUnlock(drop_handle);
             *((HANDLE *)lParam) = drop_handle;
 
@@ -96,10 +95,10 @@ bool Core::OnNCBUTTONDOWN_Core(WPARAM wParam, LPARAM lParam)
         (filepath.empty() == false) &&
         (PathFileExistsA(filepath.c_str()) == TRUE))
     {
-        dragging        = true;
-        timerState      = 0;
-        drawStartXpos   = (int)LOWORD(lParam);
-        drawStartYpos   = (int)HIWORD(lParam);
+        isDragging    = true;
+        timerState    = 0;
+        drawStartXpos = (int)LOWORD(lParam);
+        drawStartYpos = (int)HIWORD(lParam);
 
         //
         SetSysMenuTimer();
@@ -131,18 +130,18 @@ bool Core::OnNCRBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 // --------------------------------------------------------------------------
 bool Core::OnMOUSEMOVE(WPARAM wParam, LPARAM lParam)
 {
-    if(dragging && (IsInDoubleClickRect() == false))
+    if(isDragging && (IsInDoubleClickRect() == false))
     {
         KillSysMenuTimer();
 
         // ドラッグ開始
-        UINT    cf[]    = {CF_HDROP};
-        int     iEffect = (isLeftClick == true) ? DROPEFFECT_COPY : DROPEFFECT_COPY | DROPEFFECT_MOVE | DROPEFFECT_LINK;
+        UINT cf[]    = {CF_HDROP};
+        int  iEffect = isLeftClick ? DROPEFFECT_COPY : DROPEFFECT_COPY | DROPEFFECT_MOVE | DROPEFFECT_LINK;
 
         OLE_IDropSource_Start(hwnd, (UINT)WM_GETDATA, cf, sizeof(cf) / sizeof(cf[0]), iEffect);
 
         // ドラッグ終了
-        dragging    = false;
+        isDragging = false;
         ReleaseCapture();
 
         return true;
@@ -170,7 +169,7 @@ bool Core::IsInDoubleClickRect()
 bool Core::OnBUTTONUP_Core(WPARAM wParam, LPARAM lParam){
 
     // ドラッグ終了
-    dragging    = false;
+    isDragging = false;
     ReleaseCapture();
 
     if(isLeftClick)
@@ -208,11 +207,12 @@ bool Core::OnTIMER(WPARAM wParam, LPARAM lParam){
         {
             KillSysMenuTimer();
 
-            if(dragging == FALSE)
+            if(isDragging == false)
             {
                 ShowSystemMenu();
             }
-            timerState  = 1;
+
+            timerState = 1;
             break;
         }
     }
@@ -239,7 +239,7 @@ void Core::KillSysMenuTimer(){
 // --------------------------------------------------------------------------
 void Core::ShowSystemMenu()
 {
-    int iId =
+    int id =
         TrackPopupMenu(
             GetSystemMenu(hwnd, false),
             TPM_RETURNCMD | TPM_LEFTBUTTON | TPM_LEFTALIGN | TPM_TOPALIGN,
@@ -250,8 +250,8 @@ void Core::ShowSystemMenu()
             NULL
         );
 
-    if(iId > 0)
+    if(id > 0)
     {
-        PostMessage(hwnd, WM_SYSCOMMAND, (WPARAM)iId, 0);
+        PostMessage(hwnd, WM_SYSCOMMAND, (WPARAM)id, 0);
     }
 }
