@@ -65,7 +65,7 @@ bool Core::OnGETDATA(WPARAM wParam, LPARAM lParam)
         {
             const DWORD buffer_size = sizeof(DROPFILES) + MAX_PATH + 1 + 1;
             //
-            HDROP   drop_handle = (HDROP)GlobalAlloc(GHND | GMEM_SHARE, buffer_size);
+            HDROP drop_handle = (HDROP)GlobalAlloc(GHND | GMEM_SHARE, buffer_size);
             {
                 DROPFILES *dropfiles = (DROPFILES *)GlobalLock(drop_handle);
 
@@ -166,8 +166,8 @@ bool Core::IsInDoubleClickRect()
     #undef ABS
 }
 // --------------------------------------------------------------------------
-bool Core::OnBUTTONUP_Core(WPARAM wParam, LPARAM lParam){
-
+bool Core::OnBUTTONUP_Core(WPARAM wParam, LPARAM lParam)
+{
     // ドラッグ終了
     isDragging = false;
     ReleaseCapture();
@@ -189,18 +189,18 @@ bool Core::OnBUTTONUP_Core(WPARAM wParam, LPARAM lParam){
     return false;
 }
 // --------------------------------------------------------------------------
-bool Core::OnLBUTTONUP(WPARAM wParam, LPARAM lParam){
-
+bool Core::OnLBUTTONUP(WPARAM wParam, LPARAM lParam)
+{
     return OnBUTTONUP_Core(wParam, lParam);
 }
 // --------------------------------------------------------------------------
-bool Core::OnRBUTTONUP(WPARAM wParam, LPARAM lParam){
-
+bool Core::OnRBUTTONUP(WPARAM wParam, LPARAM lParam)
+{
     return OnBUTTONUP_Core(wParam, lParam);
 }
 // --------------------------------------------------------------------------
-bool Core::OnTIMER(WPARAM wParam, LPARAM lParam){
-
+bool Core::OnTIMER(WPARAM wParam, LPARAM lParam)
+{
     switch(wParam)
     {
         case WM_TIMER_SYSMENU:
@@ -220,16 +220,16 @@ bool Core::OnTIMER(WPARAM wParam, LPARAM lParam){
     return true;
 }
 // --------------------------------------------------------------------------
-void Core::SetSysMenuTimer(){
-
+void Core::SetSysMenuTimer()
+{
     if(SetTimer(hwnd, WM_TIMER_SYSMENU, GetDoubleClickTime(), NULL) != 0)
     {
         isActiveSysmenuTimer = true;
     }
 }
 // --------------------------------------------------------------------------
-void Core::KillSysMenuTimer(){
-
+void Core::KillSysMenuTimer()
+{
     if(isActiveSysmenuTimer)
     {
         isActiveSysmenuTimer = false;
@@ -255,3 +255,4 @@ void Core::ShowSystemMenu()
         PostMessage(hwnd, WM_SYSCOMMAND, (WPARAM)id, 0);
     }
 }
+
