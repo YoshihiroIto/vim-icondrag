@@ -38,13 +38,13 @@ enum
 // --------------------------------------------------------------------------
 void Core::Initialize(HWND hwnd)
 {
-    dragging				= false;
-    timerState				= 0;
-    isActiveSysmenuTimer	= false;
-    isLeftClick			    = false;
-    drawStartXpos			= 0;
-    drawStartYpos			= 0;
-    this->hwnd				= hwnd;
+    dragging                = false;
+    timerState              = 0;
+    isActiveSysmenuTimer    = false;
+    isLeftClick             = false;
+    drawStartXpos           = 0;
+    drawStartYpos           = 0;
+    this->hwnd              = hwnd;
 }
 // --------------------------------------------------------------------------
 void Core::Finalize()
@@ -54,33 +54,33 @@ void Core::Finalize()
 // --------------------------------------------------------------------------
 void Core::SetFilepath(const char *filepath)
 {
-	this->filepath = filepath;
+    this->filepath = filepath;
 }
 // --------------------------------------------------------------------------
 bool Core::OnGETDATA(WPARAM wParam, LPARAM lParam)
 {
-	switch(wParam)
-	{
+    switch(wParam)
+    {
         case CF_HDROP:
-	    {
-			const DWORD	buffer_size	= sizeof(DROPFILES) + MAX_PATH + 1 + 1;
+        {
+            const DWORD buffer_size = sizeof(DROPFILES) + MAX_PATH + 1 + 1;
             //
-            HDROP	drop_handle	= (HDROP)GlobalAlloc(GHND | GMEM_SHARE, buffer_size);
+            HDROP   drop_handle = (HDROP)GlobalAlloc(GHND | GMEM_SHARE, buffer_size);
             {
-                DROPFILES *	dropfiles	= (DROPFILES *)GlobalLock(drop_handle);
+                DROPFILES * dropfiles   = (DROPFILES *)GlobalLock(drop_handle);
 
                 ZeroMemory(dropfiles, buffer_size);
-                dropfiles->pFiles	= sizeof(DROPFILES);		// ファイル名のリストまでのオフセット
-                dropfiles->pt.x		= 0;
-                dropfiles->pt.y		= 0;
-                dropfiles->fNC		= false;
-                dropfiles->fWide	= FALSE;
+                dropfiles->pFiles   = sizeof(DROPFILES);        // ファイル名のリストまでのオフセット
+                dropfiles->pt.x     = 0;
+                dropfiles->pt.y     = 0;
+                dropfiles->fNC      = false;
+                dropfiles->fWide    = FALSE;
                 CopyMemory(dropfiles + 1, filepath.c_str(), filepath.size());
             }
 
             //
             GlobalUnlock(drop_handle);
-            *((HANDLE *)lParam)	= drop_handle;
+            *((HANDLE *)lParam) = drop_handle;
 
             break;
         }
@@ -92,14 +92,14 @@ bool Core::OnGETDATA(WPARAM wParam, LPARAM lParam)
 // --------------------------------------------------------------------------
 bool Core::OnNCBUTTONDOWN_Core(WPARAM wParam, LPARAM lParam)
 {
-    if(	(wParam == HTSYSMENU) &&
-		(filepath.empty() == false) &&
-		(PathFileExistsA(filepath.c_str()) == TRUE))
-	{
-        dragging		= true;
-        timerState		= 0;
-        drawStartXpos	= (int)LOWORD(lParam);
-        drawStartYpos	= (int)HIWORD(lParam);
+    if( (wParam == HTSYSMENU) &&
+        (filepath.empty() == false) &&
+        (PathFileExistsA(filepath.c_str()) == TRUE))
+    {
+        dragging        = true;
+        timerState      = 0;
+        drawStartXpos   = (int)LOWORD(lParam);
+        drawStartYpos   = (int)HIWORD(lParam);
 
         //
         SetSysMenuTimer();
@@ -117,14 +117,14 @@ bool Core::OnNCBUTTONDOWN_Core(WPARAM wParam, LPARAM lParam)
 // --------------------------------------------------------------------------
 bool Core::OnNCLBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 {
-    isLeftClick	= true;				// 左クリック
+    isLeftClick = true;             // 左クリック
 
     return OnNCBUTTONDOWN_Core(wParam, lParam);
 }
 // --------------------------------------------------------------------------
 bool Core::OnNCRBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 {
-    isLeftClick	= false;			// 右クリック
+    isLeftClick = false;            // 右クリック
 
     return OnNCBUTTONDOWN_Core(wParam, lParam);
 }
@@ -132,32 +132,32 @@ bool Core::OnNCRBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 bool Core::OnMOUSEMOVE(WPARAM wParam, LPARAM lParam)
 {
     if(dragging && (IsInDoubleClickRect() == false))
-	{
+    {
         KillSysMenuTimer();
 
         // ドラッグ開始
-        UINT	cf[]	= {CF_HDROP};
-        int		iEffect	= (isLeftClick == true) ? DROPEFFECT_COPY : DROPEFFECT_COPY | DROPEFFECT_MOVE | DROPEFFECT_LINK;
+        UINT    cf[]    = {CF_HDROP};
+        int     iEffect = (isLeftClick == true) ? DROPEFFECT_COPY : DROPEFFECT_COPY | DROPEFFECT_MOVE | DROPEFFECT_LINK;
 
-		OLE_IDropSource_Start(hwnd, (UINT)WM_GETDATA, cf, sizeof(cf) / sizeof(cf[0]), iEffect);
+        OLE_IDropSource_Start(hwnd, (UINT)WM_GETDATA, cf, sizeof(cf) / sizeof(cf[0]), iEffect);
 
         // ドラッグ終了
-        dragging	= false;
+        dragging    = false;
         ReleaseCapture();
 
         return true;
     }
-	else
-	{
+    else
+    {
         return false;
     }
 }
 // --------------------------------------------------------------------------
 bool Core::IsInDoubleClickRect()
 {
-    #define	ABS(A)	(((A) >= 0) ? (A) : -(A))
+    #define ABS(A)  (((A) >= 0) ? (A) : -(A))
 
-    POINT	cursor_pos;
+    POINT   cursor_pos;
     GetCursorPos(&cursor_pos);
 
     return
@@ -170,20 +170,20 @@ bool Core::IsInDoubleClickRect()
 bool Core::OnBUTTONUP_Core(WPARAM wParam, LPARAM lParam){
 
     // ドラッグ終了
-    dragging	= false;
+    dragging    = false;
     ReleaseCapture();
 
     if(isLeftClick)
-	{
+    {
         // ドラッグを行っていなくて、ダブルクリック間隔以上に押下状態が続いていたら
         if(timerState == 1)
-	    {
+        {
             ShowSystemMenu();
             timerState = 0;
         }
     }
-	else
-	{
+    else
+    {
         KillSysMenuTimer();
     }
 
@@ -203,16 +203,16 @@ bool Core::OnRBUTTONUP(WPARAM wParam, LPARAM lParam){
 bool Core::OnTIMER(WPARAM wParam, LPARAM lParam){
 
     switch(wParam)
-	{
+    {
         case WM_TIMER_SYSMENU:
-	    {
+        {
             KillSysMenuTimer();
 
             if(dragging == FALSE)
-	        {
+            {
                 ShowSystemMenu();
             }
-            timerState	= 1;
+            timerState  = 1;
             break;
         }
     }
@@ -239,16 +239,16 @@ void Core::KillSysMenuTimer(){
 // --------------------------------------------------------------------------
 void Core::ShowSystemMenu()
 {
-    int	iId	=
-	    TrackPopupMenu(
-		    GetSystemMenu(hwnd, false),
-	        TPM_RETURNCMD | TPM_LEFTBUTTON | TPM_LEFTALIGN | TPM_TOPALIGN,
-	        drawStartXpos,
-	        drawStartYpos,
-	        0,
-	        hwnd,
-	        NULL
-	    );
+    int iId =
+        TrackPopupMenu(
+            GetSystemMenu(hwnd, false),
+            TPM_RETURNCMD | TPM_LEFTBUTTON | TPM_LEFTALIGN | TPM_TOPALIGN,
+            drawStartXpos,
+            drawStartYpos,
+            0,
+            hwnd,
+            NULL
+        );
 
     if(iId > 0)
     {

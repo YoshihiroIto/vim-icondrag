@@ -28,44 +28,44 @@ namespace
 {
 HMODULE gvimModule  = 0;     // Gvim本体
 HMODULE selfHandle  = 0;     // 常駐用
-HWND	gvimHwnd    = 0;
+HWND    gvimHwnd    = 0;
 WNDPROC oldWndProc  = 0;
 Core    core;
 
 LRESULT CALLBACK IconDragWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch(uMsg)
-	{
-		case Core::WM_GETDATA:{	if (core.OnGETDATA(		    wParam, lParam))    return 0;	}   break;
-		case WM_NCLBUTTONDOWN:{	if (core.OnNCLBUTTONDOWN(	wParam, lParam))    return 0;	}   break;
-		case WM_NCRBUTTONDOWN:{	if (core.OnNCRBUTTONDOWN(	wParam, lParam))    return 0;	}   break;
-		case WM_MOUSEMOVE:{		if (core.OnMOUSEMOVE(		wParam, lParam))    return 0;	}   break;
-		case WM_LBUTTONUP:{		if (core.OnLBUTTONUP(		wParam, lParam))    return 0;	}   break;
-		case WM_RBUTTONUP:{		if (core.OnRBUTTONUP(		wParam, lParam))    return 0;	}   break;
-		case WM_TIMER:{			if (core.OnTIMER(			wParam, lParam))    return 0;	}   break;
-	}
+    switch(uMsg)
+    {
+        case Core::WM_GETDATA:{ if (core.OnGETDATA(         wParam, lParam))    return 0;   }   break;
+        case WM_NCLBUTTONDOWN:{ if (core.OnNCLBUTTONDOWN(   wParam, lParam))    return 0;   }   break;
+        case WM_NCRBUTTONDOWN:{ if (core.OnNCRBUTTONDOWN(   wParam, lParam))    return 0;   }   break;
+        case WM_MOUSEMOVE:{     if (core.OnMOUSEMOVE(       wParam, lParam))    return 0;   }   break;
+        case WM_LBUTTONUP:{     if (core.OnLBUTTONUP(       wParam, lParam))    return 0;   }   break;
+        case WM_RBUTTONUP:{     if (core.OnRBUTTONUP(       wParam, lParam))    return 0;   }   break;
+        case WM_TIMER:{         if (core.OnTIMER(           wParam, lParam))    return 0;   }   break;
+    }
 
-	return CallWindowProc(oldWndProc, hWnd, uMsg, wParam, lParam);
+    return CallWindowProc(oldWndProc, hWnd, uMsg, wParam, lParam);
 }
 
 void Initialize(const char *args)
 {
-	if (selfHandle == 0)
+    if (selfHandle == 0)
     {
-		gvimHwnd = (HWND)args;
+        gvimHwnd = (HWND)args;
 
-		OleInitialize(NULL);
+        OleInitialize(NULL);
 
-		// サブクラス化
-		#define GWL_WNDPROC (-4)
-		oldWndProc = (WNDPROC)GetWindowLongPtr(gvimHwnd, GWL_WNDPROC);
+        // サブクラス化
+        #define GWL_WNDPROC (-4)
+        oldWndProc = (WNDPROC)GetWindowLongPtr(gvimHwnd, GWL_WNDPROC);
         SetWindowLongPtr(gvimHwnd, GWL_WNDPROC, (LONG_PTR)IconDragWndProc);
 
         // 常駐
-		char selfPath[MAX_PATH];
+        char selfPath[MAX_PATH];
         GetModuleFileNameA(gvimModule, selfPath, sizeof(selfPath));
         selfHandle = LoadLibraryA(selfPath);
-		core.Initialize(gvimHwnd);
+        core.Initialize(gvimHwnd);
     }
 }
 
@@ -73,17 +73,17 @@ void Finalize()
 {
     if (selfHandle != 0)
     {
-		core.Finalize();
+        core.Finalize();
 
         // 常駐解除
         FreeLibrary(selfHandle);
         selfHandle = 0;
 
-		// サブクラス化を戻す
-		SetWindowLongPtr(gvimHwnd, GWLP_WNDPROC, (LONG_PTR)oldWndProc);
+        // サブクラス化を戻す
+        SetWindowLongPtr(gvimHwnd, GWLP_WNDPROC, (LONG_PTR)oldWndProc);
 
-		OleUninitialize();
-	}
+        OleUninitialize();
+    }
 }
 
 }
@@ -106,9 +106,9 @@ EXPORT char *IconDrag_Disable(const char *args)
 
 EXPORT char *IconDrag_SetCurrentFilepath(const char *args)
 {
-	core.SetFilepath(args == NULL ? "" : args);
+    core.SetFilepath(args == NULL ? "" : args);
 
-	return NULL;
+    return NULL;
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
@@ -120,7 +120,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
         break;
 
     case DLL_THREAD_ATTACH:
-		break;
+        break;
 
     case DLL_THREAD_DETACH:
         break;
