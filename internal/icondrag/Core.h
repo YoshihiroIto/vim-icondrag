@@ -30,29 +30,35 @@ class Core
 {
 public:
     enum{ WM_GETDATA = WM_APP + 1977 };
+	static const char *PropertyName;
 
-    void Initialize(HWND hwnd);
-    void Finalize();
+    Core(HWND hwnd);
+    ~Core();
 
     void SetFilepath(const char *filepath);
 
+private:
+    bool        isDragging;
+    bool        isActiveSysmenuTimer;
+    bool        isLeftClick;
+    int         timerState;
+    int         drawStartXpos;
+    int         drawStartYpos;
+
+    std::string filepath;
+
+    HWND        hwnd;
+	WNDPROC     oldWndProc;
+	HMODULE     selfModule;
+
     bool OnGETDATA(WPARAM wParam, LPARAM lParam);
+    bool OnDESTROY(WPARAM wParam, LPARAM lParam);
     bool OnNCRBUTTONDOWN(WPARAM wParam, LPARAM lParam);
     bool OnNCLBUTTONDOWN(WPARAM wParam, LPARAM lParam);
     bool OnMOUSEMOVE(WPARAM wParam, LPARAM lParam);
     bool OnLBUTTONUP(WPARAM wParam, LPARAM lParam);
     bool OnRBUTTONUP(WPARAM wParam, LPARAM lParam);
     bool OnTIMER(WPARAM wParam, LPARAM lParam);
-
-private:
-    bool        isDragging;
-    int         timerState;
-    bool        isActiveSysmenuTimer;
-    bool        isLeftClick;
-    int         drawStartXpos;
-    int         drawStartYpos;
-    HWND        hwnd;
-    std::string filepath;
 
     bool OnNCBUTTONDOWN_Core(WPARAM wParam, LPARAM lParam);
     bool OnBUTTONUP_Core(WPARAM wParam, LPARAM lParam);
@@ -62,6 +68,8 @@ private:
     void ShowSystemMenu();
 
     bool IsInDoubleClickRect();
+
+	static LRESULT CALLBACK IconDragWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

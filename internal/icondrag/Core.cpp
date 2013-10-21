@@ -30,26 +30,78 @@ extern "C"{
 
 #pragma comment(lib, "shlwapi.lib")
 
+namespace
+{
+
+// http://stackoverflow.com/questions/557081/how-do-i-get-the-hmodule-for-the-currently-executing-code
+HMODULE GetCurrentModule()
+{
+    HMODULE hModule = NULL;
+
+    GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCTSTR)GetCurrentModule, &hModule);
+
+    return hModule;
+}
+}
+
 enum
 {
     WM_TIMER_SYSMENU = 100,
 };
 
+const char *Core::PropertyName  = "IconDragPluginInfo";
+
+LRESULT CALLBACK Core::IconDragWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    Core *core = (Core *)GetPropA(hWnd, PropertyName);
+
+    switch(uMsg)
+    {
+        case Core::WM_GETDATA:{ if (core->OnGETDATA(      wParam, lParam)) return 0; } break;
+        case WM_DESTROY:{       if (core->OnDESTROY(      wParam, lParam)) return 0; } break;
+        case WM_NCLBUTTONDOWN:{ if (core->OnNCLBUTTONDOWN(wParam, lParam)) return 0; } break;
+        case WM_NCRBUTTONDOWN:{ if (core->OnNCRBUTTONDOWN(wParam, lParam)) return 0; } break;
+        case WM_MOUSEMOVE:{     if (core->OnMOUSEMOVE(    wParam, lParam)) return 0; } break;
+        case WM_LBUTTONUP:{     if (core->OnLBUTTONUP(    wParam, lParam)) return 0; } break;
+        case WM_RBUTTONUP:{     if (core->OnRBUTTONUP(    wParam, lParam)) return 0; } break;
+        case WM_TIMER:{         if (core->OnTIMER(        wParam, lParam)) return 0; } break;
+    }
+
+    return CallWindowProc(core->oldWndProc, hWnd, uMsg, wParam, lParam);
+}
+
 // --------------------------------------------------------------------------
-void Core::Initialize(HWND hwnd)
+Core::Core(HWND hwnd)
 {
     isDragging           = false;
-    timerState           = 0;
     isActiveSysmenuTimer = false;
     isLeftClick          = false;
+    timerState           = 0;
     drawStartXpos        = 0;
     drawStartYpos        = 0;
+
     this->hwnd           = hwnd;
+
+    // サブクラス化
+    #define GWL_WNDPROC (-4)
+    oldWndProc = (WNDPROC)GetWindowLongPtr(hwnd, GWL_WNDPROC);
+    SetWindowLongPtr(hwnd, GWL_WNDPROC, (LONG_PTR)IconDragWndProc);
+
+    // 常駐
+    char selfPath[MAX_PATH];
+    GetModuleFileNameA(GetCurrentModule(), selfPath, sizeof(selfPath));
+    selfModule = LoadLibraryA(selfPath);
 }
 // --------------------------------------------------------------------------
-void Core::Finalize()
+Core::~Core()
 {
     KillSysMenuTimer();
+
+    // 常駐解除
+    FreeLibrary(selfModule);
+
+    // サブクラス化を戻す
+    SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)oldWndProc);
 }
 // --------------------------------------------------------------------------
 void Core::SetFilepath(const char *filepath)
@@ -86,6 +138,14 @@ bool Core::OnGETDATA(WPARAM wParam, LPARAM lParam)
     }
 
     return true;
+}
+
+// --------------------------------------------------------------------------
+bool Core::OnDESTROY(WPARAM wParam, LPARAM lParam)
+{
+    KillSysMenuTimer();
+
+    return false;
 }
 
 // --------------------------------------------------------------------------
@@ -138,9 +198,14 @@ bool Core::OnMOUSEMOVE(WPARAM wParam, LPARAM lParam)
         UINT cf[]    = {CF_HDROP};
         int  iEffect = isLeftClick ? DROPEFFECT_COPY : DROPEFFECT_COPY | DROPEFFECT_MOVE | DROPEFFECT_LINK;
 
-        OleInitialize(NULL);
+        HRESULT result = OleInitialize(NULL);
+
         OLE_IDropSource_Start(hwnd, (UINT)WM_GETDATA, cf, sizeof(cf) / sizeof(cf[0]), iEffect);
-        OleUninitialize();
+
+        if (result == S_OK)
+        {
+            OleUninitialize();
+        }
 
         // ドラッグ終了
         isDragging = false;
@@ -253,4 +318,3 @@ void Core::ShowSystemMenu()
         PostMessage(hwnd, WM_SYSCOMMAND, (WPARAM)id, 0);
     }
 }
-

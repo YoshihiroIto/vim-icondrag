@@ -38,7 +38,7 @@ function! icondrag#enable()
     if !s:isWindows
         return
     endif
-    
+
     call libcallnr(s:icondrag_dll, 'IconDrag_Enable', v:windowid)
     let s:icondrag_state = 1
 
@@ -63,9 +63,9 @@ function! icondrag#set_current_filepath()
         let filepath = expand('%:p')
 
         if filepath == ''
-            call libcallnr(s:icondrag_dll, 'IconDrag_SetCurrentFilepath', 0)
+            call libcallnr(s:icondrag_dll, 'IconDrag_ClearCurrentFilepath', v:windowid)
         else
-            call libcallnr(s:icondrag_dll, 'IconDrag_SetCurrentFilepath', filepath)
+            call libcallnr(s:icondrag_dll, 'IconDrag_SetCurrentFilepath', printf('0x%X,%s', v:windowid, filepath))
         endif
     endif
 endfunction
