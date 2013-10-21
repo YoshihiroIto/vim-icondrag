@@ -138,7 +138,9 @@ bool Core::OnMOUSEMOVE(WPARAM wParam, LPARAM lParam)
         UINT cf[]    = {CF_HDROP};
         int  iEffect = isLeftClick ? DROPEFFECT_COPY : DROPEFFECT_COPY | DROPEFFECT_MOVE | DROPEFFECT_LINK;
 
+        OleInitialize(NULL);
         OLE_IDropSource_Start(hwnd, (UINT)WM_GETDATA, cf, sizeof(cf) / sizeof(cf[0]), iEffect);
+        OleUninitialize();
 
         // ドラッグ終了
         isDragging = false;
@@ -154,16 +156,12 @@ bool Core::OnMOUSEMOVE(WPARAM wParam, LPARAM lParam)
 // --------------------------------------------------------------------------
 bool Core::IsInDoubleClickRect()
 {
-    #define ABS(A)  (((A) >= 0) ? (A) : -(A))
-
     POINT   cursor_pos;
     GetCursorPos(&cursor_pos);
 
     return
-        (ABS(cursor_pos.x - drawStartXpos) < (GetSystemMetrics(SM_CXDOUBLECLK) / 2)) &&
-        (ABS(cursor_pos.y - drawStartYpos) < (GetSystemMetrics(SM_CYDOUBLECLK) / 2));
-
-    #undef ABS
+        (std::abs(cursor_pos.x - drawStartXpos) < (GetSystemMetrics(SM_CXDOUBLECLK) / 2)) &&
+        (std::abs(cursor_pos.y - drawStartYpos) < (GetSystemMetrics(SM_CYDOUBLECLK) / 2));
 }
 // --------------------------------------------------------------------------
 bool Core::OnBUTTONUP_Core(WPARAM wParam, LPARAM lParam)

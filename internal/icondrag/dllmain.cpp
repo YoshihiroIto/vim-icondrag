@@ -54,8 +54,6 @@ void Initialize(const char *args)
     {
         gvimHwnd = (HWND)args;
 
-        OleInitialize(NULL);
-
         // サブクラス化
         #define GWL_WNDPROC (-4)
         oldWndProc = (WNDPROC)GetWindowLongPtr(gvimHwnd, GWL_WNDPROC);
@@ -81,8 +79,6 @@ void Finalize()
 
         // サブクラス化を戻す
         SetWindowLongPtr(gvimHwnd, GWLP_WNDPROC, (LONG_PTR)oldWndProc);
-
-        OleUninitialize();
     }
 }
 
