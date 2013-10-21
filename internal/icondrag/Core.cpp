@@ -318,3 +318,4 @@ void Core::ShowSystemMenu()
         PostMessage(hwnd, WM_SYSCOMMAND, (WPARAM)id, 0);
     }
 }
+

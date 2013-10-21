@@ -94,3 +94,4 @@ EXPORT char *IconDrag_SetCurrentFilepath(const char *args)
 
     return NULL;
 }
+

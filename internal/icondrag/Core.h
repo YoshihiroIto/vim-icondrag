@@ -30,7 +30,7 @@ class Core
 {
 public:
     enum{ WM_GETDATA = WM_APP + 1977 };
-	static const char *PropertyName;
+    static const char *PropertyName;
 
     Core(HWND hwnd);
     ~Core();
@@ -48,8 +48,8 @@ private:
     std::string filepath;
 
     HWND        hwnd;
-	WNDPROC     oldWndProc;
-	HMODULE     selfModule;
+    WNDPROC     oldWndProc;
+    HMODULE     selfModule;
 
     bool OnGETDATA(WPARAM wParam, LPARAM lParam);
     bool OnDESTROY(WPARAM wParam, LPARAM lParam);
@@ -69,7 +69,7 @@ private:
 
     bool IsInDoubleClickRect();
 
-	static LRESULT CALLBACK IconDragWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK IconDragWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
 #endif
