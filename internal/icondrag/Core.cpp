@@ -46,6 +46,7 @@ HMODULE GetCurrentModule()
 
 enum
 {
+    WM_GETDATA = WM_APP + 1977,
     WM_TIMER_SYSMENU = 100,
 };
 
@@ -57,7 +58,7 @@ LRESULT CALLBACK Core::IconDragWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 
     switch(uMsg)
     {
-        case Core::WM_GETDATA:{ if (core->OnGETDATA(      wParam, lParam)) return 0; } break;
+        case WM_GETDATA:{       if (core->OnGETDATA(      wParam, lParam)) return 0; } break;
         case WM_DESTROY:{       if (core->OnDESTROY(      wParam, lParam)) return 0; } break;
         case WM_NCLBUTTONDOWN:{ if (core->OnNCLBUTTONDOWN(wParam, lParam)) return 0; } break;
         case WM_NCRBUTTONDOWN:{ if (core->OnNCRBUTTONDOWN(wParam, lParam)) return 0; } break;

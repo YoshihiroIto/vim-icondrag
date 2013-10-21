@@ -29,7 +29,6 @@
 class Core
 {
 public:
-    enum{ WM_GETDATA = WM_APP + 1977 };
     static const char *PropertyName;
 
     Core(HWND hwnd);
