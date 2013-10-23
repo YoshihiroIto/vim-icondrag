@@ -26,29 +26,27 @@
 
 #define EXPORT extern "C" __declspec(dllexport)
 
-EXPORT char *IconDrag_Enable(const char *args)
+EXPORT char* IconDrag_Enable(const char* args)
 {
     HWND hwnd = (HWND)args;
 
-    if (GetPropA(hwnd, Core::PropertyName) != NULL)
-    {
+    if (GetPropA(hwnd, Core::PropertyName) != NULL) {
         return NULL;
     }
 
-    Core *core = new Core(hwnd);
+    Core* core = new Core(hwnd);
     SetPropA(hwnd, Core::PropertyName, core);
 
     return NULL;
 }
 
-EXPORT char *IconDrag_Disable(const char *args)
+EXPORT char* IconDrag_Disable(const char* args)
 {
     HWND hwnd = (HWND)args;
 
-    Core *core = (Core *)GetPropA(hwnd, Core::PropertyName);
+    Core* core = (Core*)GetPropA(hwnd, Core::PropertyName);
 
-    if (core == NULL)
-    {
+    if (core == NULL) {
         return NULL;
     }
 
@@ -60,14 +58,13 @@ EXPORT char *IconDrag_Disable(const char *args)
     return NULL;
 }
 
-EXPORT char *IconDrag_ClearCurrentFilepath(const char *args)
+EXPORT char* IconDrag_ClearCurrentFilepath(const char* args)
 {
     HWND hwnd = (HWND)args;
 
-    Core *core = (Core *)GetPropA(hwnd, Core::PropertyName);
+    Core* core = (Core*)GetPropA(hwnd, Core::PropertyName);
 
-    if (core == NULL)
-    {
+    if (core == NULL) {
         return NULL;
     }
 
@@ -76,17 +73,16 @@ EXPORT char *IconDrag_ClearCurrentFilepath(const char *args)
     return NULL;
 }
 
-EXPORT char *IconDrag_SetCurrentFilepath(const char *args)
+EXPORT char* IconDrag_SetCurrentFilepath(const char* args)
 {
-    char *endptr;
+    char* endptr;
 
     HWND hwnd = (HWND)strtol(args, &endptr, 0);
-    const char *path = endptr + 1;
+    const char* path = endptr + 1;
 
-    Core *core = (Core *)GetPropA(hwnd, Core::PropertyName);
+    Core* core = (Core*)GetPropA(hwnd, Core::PropertyName);
 
-    if (core == NULL)
-    {
+    if (core == NULL) {
         return NULL;
     }
 
@@ -94,4 +90,3 @@ EXPORT char *IconDrag_SetCurrentFilepath(const char *args)
 
     return NULL;
 }
-

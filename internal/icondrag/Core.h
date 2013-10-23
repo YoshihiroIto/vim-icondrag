@@ -26,29 +26,28 @@
 
 #include <string>
 
-class Core
-{
+class Core {
 public:
-    static const char *PropertyName;
+    static const char* PropertyName;
 
     Core(HWND hwnd);
     ~Core();
 
-    void SetFilepath(const char *filepath);
+    void SetFilepath(const char* filepath);
 
 private:
-    bool        isDragging;
-    bool        isActiveSysmenuTimer;
-    bool        isLeftClick;
-    int         timerState;
-    int         drawStartXpos;
-    int         drawStartYpos;
+    bool isDragging;
+    bool isActiveSysmenuTimer;
+    bool isLeftClick;
+    int timerState;
+    int drawStartXpos;
+    int drawStartYpos;
 
     std::string filepath;
 
-    HWND        hwnd;
-    WNDPROC     oldWndProc;
-    HMODULE     selfModule;
+    HWND hwnd;
+    WNDPROC oldWndProc;
+    HMODULE selfModule;
 
     bool OnGETDATA(WPARAM wParam, LPARAM lParam);
     bool OnDESTROY(WPARAM wParam, LPARAM lParam);
@@ -72,4 +71,3 @@ private:
 };
 
 #endif
-
